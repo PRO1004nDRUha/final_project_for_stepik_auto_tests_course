@@ -1,5 +1,7 @@
 import pytest
 from .pages.product_page import ProductPage
+from .pages.locators import ProductPageLocators
+from .pages.login_page import LoginPage
 
 
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
@@ -20,3 +22,45 @@ def test_guest_can_add_product_to_basket(browser, link):
     page.messages_should_be_after_add_to_basket()
     page.correct_product_should_be_added_to_basket()
     page.correct_product_prise_should_be_added_to_basket()
+
+
+@pytest.mark.xfail
+def test_guest_cant_see_success_message_after_adding_product_to_basket(browser):
+    link = "http://selenium1py.pythonanywhere.com/ru/catalogue/coders-at-work_207/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.add_to_basket()
+    assert page.is_not_element_present(*ProductPageLocators.MASSAGES), "guest can see success message after adding product to basket"
+
+
+def test_guest_cant_see_success_message(browser):
+    link = "http://selenium1py.pythonanywhere.com/ru/catalogue/coders-at-work_207/"
+    page = ProductPage(browser, link)
+    page.open()
+    assert page.is_not_element_present(*ProductPageLocators.MASSAGES), "guest can see success message"
+
+
+@pytest.mark.xfail
+def test_message_disappeared_after_adding_product_to_basket(browser):
+    link = "http://selenium1py.pythonanywhere.com/ru/catalogue/coders-at-work_207/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.add_to_basket()
+    assert page.is_disappeared(*ProductPageLocators.MASSAGES), "message not disappeared after adding product to basket"
+
+
+def test_guest_should_see_login_link_on_product_page(browser):
+    link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.should_be_login_link()
+
+
+def test_guest_can_go_to_login_page_from_product_page(browser):
+    link = "http://selenium1py.pythonanywhere.com/en-gb/catalogue/the-city-and-the-stars_95/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.go_to_login_page()
+    page = LoginPage(browser, link)
+    page.should_be_login_form()
+    page.should_be_register_form()
